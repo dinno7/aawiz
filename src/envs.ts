@@ -1,5 +1,13 @@
 import { ConfigModuleOptions } from '@nestjs/config';
-import { IsEnum, validateSync } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  IsUrl,
+  Min,
+  validateSync,
+} from 'class-validator';
 
 import { Expose, plainToInstance, Transform } from 'class-transformer';
 
@@ -14,6 +22,33 @@ export class Envs {
   @Expose()
   @IsEnum(NodeEnv)
   NODE_ENV: NodeEnv;
+
+  @Expose()
+  @IsString()
+  @IsNotEmpty()
+  JWT_ACCESS_TOKEN_SECRET: string;
+
+  @Expose()
+  @IsString()
+  @IsNotEmpty()
+  JWT_REFRESH_TOKEN_SECRET: string;
+
+  @Expose()
+  @IsNumber()
+  @Min(3600)
+  JWT_ACCESS_TOKEN_TTL: number;
+
+  @Expose()
+  @Min(10000)
+  JWT_REFRESH_TOKEN_TTL: number;
+
+  @Expose()
+  @IsUrl()
+  JWT_TOKEN_AUDIENCE_URL: string;
+
+  @Expose()
+  @IsUrl()
+  JWT_TOKEN_ISSUER_URL: string;
 }
 
 export const envsValidator: ConfigModuleOptions['validate'] = (
@@ -34,10 +69,11 @@ export const envsValidator: ConfigModuleOptions['validate'] = (
   if (errors.length > 0) {
     console.log('----------------');
     console.error(`❗️ ~ ERROR  ~ Environment variables validation failed!`);
-    const errorMsgs = errors.map((error) =>
-      Object.values(error.constraints || {}).join(', '),
+    const errorMsgs = errors.map(
+      (error) =>
+        `- ${Object.values(error.constraints || {}).join(', ')} - Current: (${error.value})`,
     );
-    console.info(errorMsgs.map((s) => `\t- ${s}`).join('\n'));
+    console.info(errorMsgs.join('\n'));
     console.log('----------------');
     throw new Error(errors.toString());
   }
