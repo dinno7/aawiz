@@ -1,0 +1,33 @@
+services:
+  postgres:
+    container_name: aawiz_postgres_dev
+    image: postgres:18.1-alpine3.22
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?database password required}
+      POSTGRES_DATABASE: ${POSTGRES_DATABASE:-aawiz}
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DATABASE:-aawiz}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - aawiz_network
+
+volumes:
+  postgres_data_dev:
+
+networks:
+  default:
+    name: aawiz_network
