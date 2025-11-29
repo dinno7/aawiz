@@ -2,9 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { Envs, NodeEnv } from './envs';
 import { AppSetting } from './app.settings';
+import { MikroORM } from '@mikro-orm/postgresql';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -36,7 +37,12 @@ async function bootstrap() {
     SwaggerModule.setup('docs', app, documentFactory);
   }
 
-  await app.listen(process.env.PORT ?? 3000);
+  const orm = app.get(MikroORM);
+  await orm.getMigrator().up();
+
+  const PORT = +appConfig.get('PORT', 5000);
+  await app.listen(PORT);
+  new Logger('App').log(`Running on ${PORT}`);
 }
 
 void bootstrap();
