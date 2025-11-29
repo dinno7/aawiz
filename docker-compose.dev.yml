@@ -1,0 +1,47 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    container_name: aawiz_app_dev
+    restart: unless-stopped
+    env_file:
+      - ./.env.dev
+    ports:
+      - '${PORT:-3000}:3000'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: pnpm start:dev
+    networks:
+      - aawiz_network
+
+  postgres:
+    container_name: aawiz_postgres_dev
+
+  pgadmin:
+    container_name: aawiz_pgadmin
+    image: dpage/pgadmin4:9.10
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-tahadlrb7@gmail.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-1234}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - '${PGADMIN_PORT:-5050}:80'
+    restart: unless-stopped
+    networks:
+      - aawiz_network
+
+networks:
+  aawiz_network:
+    driver: bridge
+volumes:
+  pgadmin_data:
