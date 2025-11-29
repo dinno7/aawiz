@@ -3,13 +3,16 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  isPort,
+  IsPort,
   IsString,
   IsUrl,
+  Matches,
   Min,
   validateSync,
 } from 'class-validator';
 
-import { Expose, plainToInstance, Transform } from 'class-transformer';
+import { Expose, plainToInstance } from 'class-transformer';
 
 export enum NodeEnv {
   dev = 'dev',
@@ -20,8 +23,18 @@ export enum NodeEnv {
 
 export class Envs {
   @Expose()
+  @IsPort()
+  PORT: string;
+
+  @Expose()
   @IsEnum(NodeEnv)
   NODE_ENV: NodeEnv;
+
+  @Expose()
+  @Matches(
+    /^postgres(?:ql)?:\/\/(?:([^:\/]*)(?::([^@]*))?@)?([^:\/]+|\[[^\]]+\])(?::(\d+))?\/([^?\s]*)(?:\?(.*))?$/,
+  )
+  POSTGRES_URI: string;
 
   @Expose()
   @IsString()
