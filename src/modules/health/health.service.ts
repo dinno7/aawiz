@@ -11,7 +11,7 @@ export class HealthCheckService {
     return {
       ok: true,
       env: this.appConfig.get<NodeEnv>('NODE_ENV')!,
-      date_time: new Date(),
+      dateTime: new Date(),
     };
   }
 }
