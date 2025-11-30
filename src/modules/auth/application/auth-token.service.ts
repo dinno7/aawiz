@@ -1,11 +1,20 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { randomUUID } from 'crypto';
+import { JwtService, JwtSignOptions, JwtVerifyOptions } from '@nestjs/jwt';
+import { UUID } from 'crypto';
 import { jwtConfig } from './configs';
-import { RefreshTokenPayload, TokensGenerated } from './types';
+import {
+  AccessTokenPayload,
+  AuthTokenPayload,
+  RefreshTokenPayload,
+  GeneratedToken,
+  TokenType,
+  GeneratedAuthTokens,
+} from './types';
 import { UsersService } from 'src/modules/users/application/users.service';
-import { InvalidRefreshTokenException } from './exceptions/invalid-refresh-token.exception';
+import { MemoryStorage } from 'src/shared/memory-storage';
+import { UserPublic } from 'src/modules/users/domain';
+import { InvalidAuthTokenError } from './errors/invalid-auth-token.error';
 
 @Injectable()
 export class AuthTokenService {
@@ -14,107 +23,131 @@ export class AuthTokenService {
     private readonly jwtConfigurations: ConfigType<typeof jwtConfig>,
     private readonly jwtService: JwtService,
     private readonly userService: UsersService,
+    private readonly memoryStorage: MemoryStorage,
   ) {}
 
-  async signOut(refreshToken: string) {
-    try {
-      const {
-        type,
-        tokenId,
-        id: userId,
-      } = await this.#verifyToken<RefreshTokenPayload>(refreshToken);
+  private readonly logger = new Logger(AuthTokenService.name);
 
-      if (type !== 'refresh') throw new Error();
-
-      // const user = await this.userService.getUserById(userId);
-      // if (!user) throw new Error();
-
-      // if (!(await this.redisService.remove(tokenId))) throw new Error();
-
-      return true;
-    } catch (error) {
-      throw new BadRequestException('Invalid refresh token');
-    }
-  }
-
-  async refreshToken(receivedToken: string) {
-    try {
-      const {
-        type,
-        tokenId,
-        id: userId,
-      } = await this.jwtService.verifyAsync<RefreshTokenPayload>(
-        receivedToken,
-        {
-          secret: this.jwtConfigurations.refreshTokenSecret,
-          audience: this.jwtConfigurations.audience,
-          issuer: this.jwtConfigurations.issuer,
-        },
-      );
-
-      if (type !== 'refresh') throw new Error();
-
-      const user = await this.userService.getById(userId);
-      if (!user) throw new Error();
-
-      // const isRefreshTokenValid = await this.redisService.validate(
-      //   tokenId,
-      //   receivedToken,
-      // );
-
-      // -> It's mean one malicious user will try to use refresh token(Auto Reuse Detection)
-      // if (!isRefreshTokenValid)
-      //   throw new InvalidRefreshTokenException('Access denied');
-
-      // -> Just sure that refresh token will be remove successfully
-      // if (!(await this.redisService.remove(tokenId))) throw new Error();
-
-      return this.generateJWTTokens(userId);
-    } catch (err) {
-      if (err instanceof InvalidRefreshTokenException) {
-        throw err;
-      }
-      throw new BadRequestException('Invalid refresh token');
-    }
-  }
-
-  async generateJWTTokens(sub: string): Promise<TokensGenerated> {
-    const refreshTokenId = `user_${randomUUID()}`;
-
+  async generateJWTTokens(sub: UUID): Promise<GeneratedAuthTokens> {
     const [accessToken, refreshToken] = await Promise.all([
-      this.#signToken({
-        type: 'access',
-        id: sub,
-      }),
-      this.#signToken({
-        type: 'refresh',
-        id: sub,
-        tokenId: refreshTokenId,
-      }),
+      this.#generateAccessToken(sub),
+      this.#generateRefreshToken(sub),
     ]);
-
-    // TODO: Add refresh token to memory for refresh token aut
-
     return {
       accessToken,
       refreshToken,
     };
   }
 
-  #signToken<T extends object = any>(payload: T): Promise<string> {
-    return this.jwtService.signAsync<T>(payload, {
-      secret: this.jwtConfigurations.secret,
-      expiresIn: this.jwtConfigurations.accessTtl,
-      audience: this.jwtConfigurations.audience,
-      issuer: this.jwtConfigurations.issuer,
-    });
+  async verifyAccessToken(token: string): Promise<UserPublic> {
+    const payload = await this.#verifyToken<AccessTokenPayload>(
+      TokenType.ACCESS,
+      token,
+    );
+
+    const user = await this.userService.getById(payload.id);
+    if (!user) {
+      throw new InvalidAuthTokenError('User not found');
+    }
+
+    if (user.passwordUpdatedAt) {
+      const changePassAfterTokenIssued =
+        payload.iat * 1000 <= user?.passwordUpdatedAt?.valueOf();
+      if (changePassAfterTokenIssued) {
+        throw new InvalidAuthTokenError('Token expires');
+      }
+    }
+
+    return user;
   }
 
-  #verifyToken<T extends object = any>(token: string): Promise<T> {
-    return this.jwtService.verifyAsync<T>(token, {
-      secret: this.jwtConfigurations.secret,
+  async verifyRefreshToken(token: string): Promise<RefreshTokenPayload> {
+    const payload = await this.#verifyToken<RefreshTokenPayload>(
+      TokenType.REFRESH,
+      token,
+    );
+
+    const user = await this.userService.getById(payload?.id);
+    if (!user) {
+      throw new InvalidAuthTokenError('Invalid user');
+    }
+
+    const isRefreshTokenValid = await this.memoryStorage.validate(
+      payload?.tokenId,
+      token,
+    );
+
+    // -> It's mean one malicious user will try to use refresh token(Auto Reuse Detection)
+    if (!isRefreshTokenValid) {
+      throw new InvalidAuthTokenError('Invalid refresh token');
+    }
+
+    return payload;
+  }
+
+  async #generateAccessToken(sub: UUID): Promise<GeneratedToken> {
+    const token = await this.#signToken({
+      id: sub,
+      type: TokenType.ACCESS,
+    });
+    return {
+      token,
+      masAgeSec: this.jwtConfigurations.accessTtlSec,
+    };
+  }
+
+  async #generateRefreshToken(sub: UUID): Promise<GeneratedToken> {
+    const refreshTokenId = `user_${sub}_${Date.now()}`;
+
+    const token = await this.#signToken({
+      id: sub,
+      type: TokenType.REFRESH,
+      tokenId: refreshTokenId,
+    });
+
+    if (!(await this.memoryStorage.insert(refreshTokenId, token))) {
+      this.logger.error('Setting refresh token to memory failed');
+      throw new Error('Something went wrong to issue tokens');
+    }
+
+    return {
+      token,
+      masAgeSec: this.jwtConfigurations.refreshTtlSec,
+    };
+  }
+
+  #signToken<T extends Omit<AuthTokenPayload, 'iat' | 'exp' | 'aud' | 'iss'>>(
+    payload: T,
+  ): Promise<string> {
+    const opts: JwtSignOptions = {
       audience: this.jwtConfigurations.audience,
       issuer: this.jwtConfigurations.issuer,
-    });
+    };
+
+    if (payload.type === TokenType.REFRESH) {
+      opts.secret = this.jwtConfigurations.refreshTokenSecret;
+      opts.expiresIn = this.jwtConfigurations.refreshTtlSec;
+    } else {
+      opts.secret = this.jwtConfigurations.secret;
+      opts.expiresIn = this.jwtConfigurations.accessTtlSec;
+    }
+
+    return this.jwtService.signAsync<T>(payload, opts);
+  }
+
+  #verifyToken<T extends AuthTokenPayload>(
+    type: TokenType,
+    token: string,
+  ): Promise<T> {
+    const opts: JwtVerifyOptions = {
+      audience: this.jwtConfigurations.audience,
+      issuer: this.jwtConfigurations.issuer,
+    };
+    if (type === TokenType.REFRESH) {
+      opts.secret = this.jwtConfigurations.refreshTokenSecret;
+    } else {
+      opts.secret = this.jwtConfigurations.secret;
+    }
+    return this.jwtService.verifyAsync<T>(token, opts);
   }
 }
