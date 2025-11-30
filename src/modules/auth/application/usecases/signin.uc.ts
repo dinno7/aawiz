@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { HashingService } from 'src/shared';
 import { UsersService } from 'src/modules/users/application/users.service';
-import { SignInDto } from '../../dtos/sing-in.dto';
 import { AuthTokenService } from '../auth-token.service';
-import { TokensGenerated } from '../types';
+import { SigninCommand } from '../commands/signin.command';
+import { SigninResult } from '../types';
+import { IncorrectPasswordError } from '../errors/incorrect-password.error';
 
 @Injectable()
 export class SigninUC {
@@ -13,8 +14,8 @@ export class SigninUC {
     private readonly authTokenService: AuthTokenService,
   ) {}
 
-  async execute({ email, password }: SignInDto): Promise<TokensGenerated> {
-    const user = await this.userService.getByEmail(email);
+  async execute({ email, password }: SigninCommand): Promise<SigninResult> {
+    const user = await this.userService.getByEmailForAuth(email);
     const dummyPassword = this.hashingService.genDummyPassword();
 
     const isPasswordCorrect = await this.hashingService.compare(
@@ -23,11 +24,17 @@ export class SigninUC {
     );
 
     if (!user || !isPasswordCorrect) {
-      throw new BadRequestException(
+      throw new IncorrectPasswordError(
         'Combination of email & password is not correct!',
       );
     }
-    const tokens = await this.authTokenService.generateJWTTokens(user.id);
-    return tokens;
+    const { accessToken, refreshToken } =
+      await this.authTokenService.generateJWTTokens(user.id);
+    return {
+      accessToken: accessToken.token,
+      refreshToken: refreshToken.token,
+      accessMaxAgeMS: accessToken.masAgeSec * 1000,
+      refreshMaxAgeMS: refreshToken.masAgeSec * 1000,
+    };
   }
 }
