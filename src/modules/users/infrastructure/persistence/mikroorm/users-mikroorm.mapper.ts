@@ -1,6 +1,7 @@
 import { Mapper } from 'src/shared/interfaces';
 import { MikroORMUser } from './users-mikroorm.entity';
 import { User } from 'src/modules/users/domain';
+import { ref } from '@mikro-orm/postgresql';
 
 class UserMapper implements Mapper<User, MikroORMUser> {
   toDomain(entity: MikroORMUser): Promise<User> {
@@ -12,21 +13,21 @@ class UserMapper implements Mapper<User, MikroORMUser> {
     domainUser.passwordUpdatedAt = entity?.passwordUpdatedAt;
     domainUser.updatedAt = entity.updatedAt;
     domainUser.createdAt = entity.createdAt;
-    domainUser.password = entity.password;
+    domainUser.password = entity.password.unwrap() || '';
     return Promise.resolve(domainUser);
   }
 
   toPersist(entity: User): Promise<MikroORMUser> {
-    const persistUser = new MikroORMUser();
-    persistUser.id = entity.id;
-    persistUser.name = entity.name;
-    persistUser.email = entity.email;
-    persistUser.roles = entity.roles;
-    persistUser.passwordUpdatedAt = entity.passwordUpdatedAt;
-    persistUser.updatedAt = entity.updatedAt;
-    persistUser.createdAt = entity.createdAt;
-    persistUser.password = entity.password;
-    return Promise.resolve(persistUser);
+    const orm = new MikroORMUser();
+    orm.id = entity.id;
+    orm.name = entity.name;
+    orm.email = entity.email;
+    orm.roles = entity.roles;
+    orm.passwordUpdatedAt = entity.passwordUpdatedAt;
+    orm.updatedAt = entity.updatedAt;
+    orm.createdAt = entity.createdAt;
+    orm.password = ref(entity.password);
+    return Promise.resolve(orm);
   }
 }
 

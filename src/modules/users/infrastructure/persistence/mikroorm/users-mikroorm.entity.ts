@@ -1,8 +1,8 @@
-import { Entity, Enum, PrimaryKey, Property } from '@mikro-orm/core';
-import { User, UserRole } from 'src/modules/users/domain';
+import { Entity, Enum, PrimaryKey, Property, type Ref } from '@mikro-orm/core';
+import { UserRole } from 'src/modules/users/domain';
 
 @Entity({ tableName: 'users' })
-export class MikroORMUser implements User {
+export class MikroORMUser {
   @PrimaryKey()
   id = crypto.randomUUID();
 
@@ -19,8 +19,10 @@ export class MikroORMUser implements User {
 
   @Property({
     hidden: true,
+    ref: true,
+    lazy: true,
   })
-  password: string;
+  password!: Ref<string>;
 
   @Property({
     nullable: true,
