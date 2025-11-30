@@ -10,5 +10,5 @@ export class CheckHealthResDto {
   env: NodeEnv;
 
   @ApiProperty()
-  date_time: Date;
+  dateTime: Date;
 }
