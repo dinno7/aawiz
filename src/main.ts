@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -9,6 +10,7 @@ import { MikroORM } from '@mikro-orm/postgresql';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(cookieParser());
 
   app.setGlobalPrefix('api');
 
@@ -32,6 +34,7 @@ async function bootstrap() {
       .setTitle(AppSetting.appName)
       .setDescription(AppSetting.appName)
       .setVersion(AppSetting.version)
+      .addBearerAuth()
       .build();
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('docs', app, documentFactory);
