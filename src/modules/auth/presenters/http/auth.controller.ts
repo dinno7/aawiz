@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   ForbiddenException,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -71,7 +72,7 @@ export class AuthController {
     });
   }
 
-  @Post('refresh')
+  @Get('refresh')
   @Auth(AuthTypes.None)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({
