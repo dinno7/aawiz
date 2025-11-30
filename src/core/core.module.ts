@@ -8,6 +8,7 @@ import { envsValidator, NodeEnv } from 'src/envs';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      expandVariables: true,
       envFilePath:
         process.env.NODE_ENV === NodeEnv.prod ? '.env.prod' : '.env.dev',
       validate: envsValidator,
