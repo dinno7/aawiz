@@ -1,9 +1,16 @@
-import { Entity, Enum, PrimaryKey, Property, type Ref } from '@mikro-orm/core';
+import {
+  Entity,
+  Enum,
+  PrimaryKey,
+  Property,
+  t,
+  type Ref,
+} from '@mikro-orm/core';
 import { UserRole } from 'src/modules/users/domain';
 
 @Entity({ tableName: 'users' })
 export class MikroORMUser {
-  @PrimaryKey()
+  @PrimaryKey({ type: t.uuid })
   id = crypto.randomUUID();
 
   @Property()

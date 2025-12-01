@@ -1,4 +1,3 @@
-import { Modules } from 'src/modules/modules';
 import { UsersMikroORMModule } from './persistence/mikroorm';
 import { Module } from '@nestjs/common';
 
