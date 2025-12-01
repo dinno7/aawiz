@@ -32,9 +32,9 @@ async function bootstrap() {
   if (appConfig.get('NODE_ENV') !== NodeEnv.prod) {
     const config = new DocumentBuilder()
       .setTitle(AppSetting.appName)
+      .setContact('M. Taha Delroba', '', 'tahadlrb7@gmail.com')
       .setDescription(AppSetting.appName)
       .setVersion(AppSetting.version)
-      .addBearerAuth()
       .build();
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('docs', app, documentFactory);
