@@ -79,7 +79,13 @@ export class AuthTokenService {
 
     // -> It's mean one malicious user will try to use refresh token(Auto Reuse Detection)
     if (!isRefreshTokenValid) {
-      throw new InvalidAuthTokenError('Invalid refresh token');
+      this.logger.error('Invalid refresh token, token maybe stolen');
+      this.logger.verbose(
+        'If you restart the application, it saves tokens in memory, which are lost during each restart. For a production environment, it is recommended to implement and use Redis as a memory storage module',
+      );
+      throw new InvalidAuthTokenError(
+        'Invalid refresh token, the token may have been stolen',
+      );
     }
 
     return payload;
