@@ -8,6 +8,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { type UUID } from 'crypto';
+import { EvaluationStatus } from 'src/modules/evaluations/domain';
 
 export class CreateEvaluationDto {
   @IsString()
@@ -36,7 +37,20 @@ export class CreateEvaluationDto {
 export class CreateEvaluationResDto {
   @ApiProperty()
   id: UUID;
-
   @ApiProperty()
   title: string;
+  @ApiProperty()
+  score: number;
+  @ApiProperty({ required: false })
+  note?: string;
+  @ApiProperty()
+  status: EvaluationStatus;
+  @ApiProperty()
+  evaluatedId: UUID;
+  @ApiProperty()
+  evaluatorId: UUID;
+  @ApiProperty()
+  createdAt: Date;
+  @ApiProperty()
+  updatedAt: Date;
 }
