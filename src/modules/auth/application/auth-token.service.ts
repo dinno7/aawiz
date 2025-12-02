@@ -125,10 +125,7 @@ export class AuthTokenService {
   #signToken<T extends Omit<AuthTokenPayload, 'iat' | 'exp' | 'aud' | 'iss'>>(
     payload: T,
   ): Promise<string> {
-    const opts: JwtSignOptions = {
-      audience: this.jwtConfigurations.audience,
-      issuer: this.jwtConfigurations.issuer,
-    };
+    const opts: JwtSignOptions = {};
 
     if (payload.type === TokenType.REFRESH) {
       opts.secret = this.jwtConfigurations.refreshTokenSecret;
@@ -145,10 +142,7 @@ export class AuthTokenService {
     type: TokenType,
     token: string,
   ): Promise<T> {
-    const opts: JwtVerifyOptions = {
-      audience: this.jwtConfigurations.audience,
-      issuer: this.jwtConfigurations.issuer,
-    };
+    const opts: JwtVerifyOptions = {};
     if (type === TokenType.REFRESH) {
       opts.secret = this.jwtConfigurations.refreshTokenSecret;
     } else {

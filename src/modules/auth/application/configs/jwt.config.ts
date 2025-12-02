@@ -8,6 +8,4 @@ export const jwtConfig = registerAs('jwt', () => ({
     `${process.env.JWT_REFRESH_TOKEN_TTL}` || '604800',
     10,
   ),
-  audience: process.env.JWT_TOKEN_AUDIENCE_URL || '',
-  issuer: process.env.JWT_TOKEN_ISSUER_URL || '',
 }));

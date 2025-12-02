@@ -53,14 +53,6 @@ export class Envs {
   @Expose()
   @Min(1)
   JWT_REFRESH_TOKEN_TTL: number;
-
-  @Expose()
-  @IsUrl()
-  JWT_TOKEN_AUDIENCE_URL: string;
-
-  @Expose()
-  @IsUrl()
-  JWT_TOKEN_ISSUER_URL: string;
 }
 
 export const envsValidator: ConfigModuleOptions['validate'] = (
