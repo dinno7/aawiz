@@ -2,4 +2,5 @@ export * from './hashing';
 export * from './decorators';
 export * from './interfaces';
 export * from './types';
+export * from './utils';
 export * from './errors';
