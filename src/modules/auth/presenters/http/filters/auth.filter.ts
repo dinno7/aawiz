@@ -4,13 +4,13 @@ import {
   ExceptionFilter,
   ForbiddenException,
 } from '@nestjs/common';
-import { IncorrectPasswordError } from 'src/modules/auth/application/errors/incorrect-password.error';
-import { InvalidAuthTokenError } from 'src/modules/auth/application/errors/invalid-auth-token.error';
-import { AppError } from 'src/shared';
+import { IncorrectPasswordError } from 'src/modules/auth/domain/errors/incorrect-password.error';
+import { InvalidAuthTokenError } from 'src/modules/auth/domain/errors/invalid-auth-token.error';
+import { AppError, DomainError } from 'src/shared';
 
-@Catch(AppError)
+@Catch(DomainError, AppError)
 export class AuthExceptionFilter implements ExceptionFilter {
-  catch(exception: AppError) {
+  catch(exception: DomainError | AppError) {
     let err = BadRequestException;
     if (
       exception instanceof InvalidAuthTokenError ||
