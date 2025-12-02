@@ -9,7 +9,7 @@ export class UserFactory {
     user.name = newUser.name;
     user.email = newUser.email;
     user.password = newUser.password;
-    user.roles = [UserRole.user];
+    user.roles = [UserRole.USER];
     user.createdAt = new Date();
     user.updatedAt = new Date();
     return user;
@@ -17,7 +17,7 @@ export class UserFactory {
 
   static createAdmin(newUser: UserForCreate): User {
     const user = UserFactory.createRegular(newUser);
-    user.roles = [UserRole.admin];
+    user.roles = [UserRole.ADMIN];
     return user;
   }
 }
