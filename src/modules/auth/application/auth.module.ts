@@ -14,6 +14,7 @@ import { BearerGuard } from '../presenters/http/guards/bearer.guard';
 import { AuthenticationGuard } from '../presenters/http/guards/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { RefreshTokensUC } from './usecases/refresh-tokens.uc';
+import { PolicyGuard } from '../presenters/http';
 
 @Module({
   imports: [
@@ -27,6 +28,10 @@ import { RefreshTokensUC } from './usecases/refresh-tokens.uc';
     {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PolicyGuard,
     },
     AuthService,
     AuthTokenService,
