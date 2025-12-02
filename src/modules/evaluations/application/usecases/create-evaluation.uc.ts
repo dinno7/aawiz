@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Evaluation } from '../../domain/eveluation';
-import { CreateEvaluationCommand } from '../commands/create-evaluation.command';
+import { CreateEvaluationCommand } from '../commands';
 import { EvaluationRepository } from '../ports/evaluation.repository';
-import { SameEvaluationActorsError } from '../errors/same-actors.error';
+import { SameEvaluationActorsError } from '../../domain/errors/same-actors.error';
 
 @Injectable()
 export class CreateEvaluationUC {
