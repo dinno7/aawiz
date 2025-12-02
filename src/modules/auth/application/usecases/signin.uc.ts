@@ -1,10 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HashingService } from 'src/shared';
 import { UsersService } from 'src/modules/users/application/users.service';
 import { AuthTokenService } from '../auth-token.service';
 import { SigninCommand } from '../commands/signin.command';
 import { SigninResult } from '../types';
-import { IncorrectPasswordError } from '../errors/incorrect-password.error';
+import { IncorrectPasswordError } from '../../domain/errors/incorrect-password.error';
 
 @Injectable()
 export class SigninUC {

@@ -21,7 +21,6 @@ import { SigninResult } from '../../application/types';
 import { AuthExceptionFilter } from './filters/auth.filter';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 
-@ApiBearerAuth()
 @UseFilters(AuthExceptionFilter)
 @Controller('auth')
 export class AuthController {
@@ -75,6 +74,7 @@ export class AuthController {
   @Get('refresh')
   @Auth(AuthTypes.None)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
   })

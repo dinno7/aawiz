@@ -3,7 +3,7 @@ import { UserPublic } from 'src/modules/users/domain';
 import { HashingService } from 'src/shared';
 import { UsersService } from 'src/modules/users/application/users.service';
 import { SignupCommand } from '../commands/signup.command';
-import { UserAlreadyExistsError } from '../errors/user-already-exists.error';
+import { UserAlreadyExistsError } from '../../domain/errors/user-already-exists.error';
 
 @Injectable()
 export class SignupUC {

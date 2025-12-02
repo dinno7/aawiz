@@ -14,7 +14,7 @@ import {
 import { UsersService } from 'src/modules/users/application/users.service';
 import { MemoryStorage } from 'src/shared/memory-storage';
 import { UserPublic } from 'src/modules/users/domain';
-import { InvalidAuthTokenError } from './errors/invalid-auth-token.error';
+import { InvalidAuthTokenError } from '../domain/errors/invalid-auth-token.error';
 
 @Injectable()
 export class AuthTokenService {
