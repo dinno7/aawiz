@@ -56,20 +56,6 @@ export class AuthController {
     this.#injectTokensToCookie(res, tokens);
     return;
   }
-  #injectTokensToCookie(res: Response, tokens: SigninResult) {
-    res.cookie(COOKIE_ACCESS_TOKEN_KEY, tokens.accessToken, {
-      httpOnly: true,
-      // secure: process.env.NODE_ENV === NodeEnv.prod,
-      maxAge: tokens.accessMaxAgeMS,
-      sameSite: true,
-    });
-    res.cookie(COOKIE_REFRESH_TOKEN_KEY, tokens.refreshToken, {
-      httpOnly: true,
-      // secure: process.env.NODE_ENV === NodeEnv.prod,
-      maxAge: tokens.refreshMaxAgeMS,
-      sameSite: true,
-    });
-  }
 
   @Get('refresh')
   @Auth(AuthTypes.None)
@@ -91,5 +77,20 @@ export class AuthController {
     const tokens = await this.authService.refreshTokens(refreshToken);
     this.#injectTokensToCookie(res, tokens);
     return;
+  }
+
+  #injectTokensToCookie(res: Response, tokens: SigninResult) {
+    res.cookie(COOKIE_ACCESS_TOKEN_KEY, tokens.accessToken, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === NodeEnv.prod,
+      maxAge: tokens.accessMaxAgeMS,
+      sameSite: true,
+    });
+    res.cookie(COOKIE_REFRESH_TOKEN_KEY, tokens.refreshToken, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === NodeEnv.prod,
+      maxAge: tokens.refreshMaxAgeMS,
+      sameSite: true,
+    });
   }
 }
