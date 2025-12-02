@@ -3,7 +3,6 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
-  isPort,
   IsPort,
   IsString,
   IsUrl,
@@ -48,11 +47,11 @@ export class Envs {
 
   @Expose()
   @IsNumber()
-  @Min(3600)
+  @Min(1)
   JWT_ACCESS_TOKEN_TTL: number;
 
   @Expose()
-  @Min(10000)
+  @Min(1)
   JWT_REFRESH_TOKEN_TTL: number;
 
   @Expose()
