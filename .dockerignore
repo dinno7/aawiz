@@ -15,7 +15,8 @@ dist
 *.swo
 
 # Environment files (load via docker-compose)
-.env*
+.env
+.env.*
 
 # Logs
 *.log
