@@ -6,4 +6,5 @@ export abstract class UserRepository {
   abstract getById(id: UUID): Promise<UserPublic | null>;
   abstract getByEmail(email: string): Promise<UserPublic | null>;
   abstract getByEmailWithPassword(email: string): Promise<User | null>;
+  abstract getAll(): Promise<UserPublic[]>;
 }

@@ -52,4 +52,9 @@ export class MikroORMUserRepository implements UserRepository {
     await user.password.load();
     return MikroORMUserMapper.toDomain(user);
   }
+
+  async getAll(): Promise<UserPublic[]> {
+    const users = await this.em.find(MikroORMUser, {});
+    return Promise.all(users.map((user) => MikroORMUserMapper.toDomain(user)));
+  }
 }

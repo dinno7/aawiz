@@ -27,4 +27,13 @@ export class UsersService {
     const user = await this.userRepository.getByEmail(email);
     return !!user;
   }
+
+  async getUsers(): Promise<UserPublic[]> {
+    try {
+      const users = await this.userRepository.getAll();
+      return users || [];
+    } catch (_) {
+      return [];
+    }
+  }
 }
