@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './ports';
-import { User, UserForCreate, UserPublic } from '../domain';
+import { User, UserForCreate, UserPublic, UserRole } from '../domain';
 import { UUID } from 'crypto';
 
 @Injectable()
@@ -39,5 +39,13 @@ export class UsersService {
     } catch (_) {
       return [];
     }
+  }
+
+  async promoteUser(id: UUID): Promise<UserPublic | null> {
+    return this.userRepository.updateRoles(id, [UserRole.ADMIN]);
+  }
+
+  async demoteUser(id: UUID): Promise<UserPublic | null> {
+    return this.userRepository.updateRoles(id, []);
   }
 }
