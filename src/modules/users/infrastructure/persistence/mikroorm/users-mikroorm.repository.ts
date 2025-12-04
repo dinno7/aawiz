@@ -57,6 +57,20 @@ export class MikroORMUserRepository implements UserRepository {
 
   async getAll(): Promise<UserPublic[]> {
     const users = await this.em.find(MikroORMUser, {});
-    return Promise.all(users.map((user) => MikroORMUserMapper.toDomain(user)));
+    return Promise.all(
+      users.map((user) => MikroORMUserMapper.toPublicDomain(user)),
+    );
+  }
+
+  async updateRoles(id: UUID, role: UserRole[]): Promise<UserPublic> {
+    const user = await this.em.findOne(MikroORMUser, { id });
+    if (!user) {
+      throw new UserNotFoundError();
+    }
+
+    user.roles = role;
+    await this.em.flush();
+
+    return MikroORMUserMapper.toPublicDomain(user);
   }
 }
