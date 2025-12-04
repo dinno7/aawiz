@@ -30,16 +30,16 @@ async function bootstrap() {
   );
 
   const appConfig = app.get(ConfigService<Envs>);
-  if (appConfig.get('NODE_ENV') !== NodeEnv.prod) {
-    const config = new DocumentBuilder()
-      .setTitle(AppSetting.appName)
-      .setContact('M. Taha Delroba', '', 'tahadlrb7@gmail.com')
-      .setDescription(AppSetting.appName)
-      .setVersion(AppSetting.version)
-      .build();
-    const documentFactory = () => SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('docs', app, documentFactory);
-  }
+  // if (appConfig.get('NODE_ENV') !== NodeEnv.prod) {
+  const config = new DocumentBuilder()
+    .setTitle(AppSetting.appName)
+    .setContact('M. Taha Delroba', '', 'tahadlrb7@gmail.com')
+    .setDescription(AppSetting.appName)
+    .setVersion(AppSetting.version)
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, documentFactory);
+  // }
 
   const orm = app.get(MikroORM);
   await orm.getMigrator().up();
