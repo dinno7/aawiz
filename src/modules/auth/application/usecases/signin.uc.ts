@@ -15,7 +15,9 @@ export class SigninUC {
   ) {}
 
   async execute({ email, password }: SigninCommand): Promise<SigninResult> {
-    const user = await this.userService.getByEmailForAuth(email);
+    const user = await this.userService
+      .getByEmailForAuth(email)
+      .catch(() => {});
     const dummyPassword = this.hashingService.genDummyPassword();
 
     const isPasswordCorrect = await this.hashingService.compare(

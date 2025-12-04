@@ -5,7 +5,9 @@ import {
   User,
   UserFactory,
   UserForCreate,
+  UserNotFoundError,
   UserPublic,
+  UserRole,
 } from 'src/modules/users/domain';
 
 import { MikroORMUserMapper } from './users-mikroorm.mapper';
@@ -25,29 +27,29 @@ export class MikroORMUserRepository implements UserRepository {
     const newUser = await MikroORMUserMapper.toPersist(domainUser);
     await this.em.persistAndFlush(newUser);
 
-    return domainUser;
+    return MikroORMUserMapper.toPublicDomain(newUser);
   }
 
-  async getById(id: UUID): Promise<UserPublic | null> {
+  async getById(id: UUID): Promise<UserPublic> {
     const user = await this.em.findOne(MikroORMUser, { id });
     if (!user) {
-      return null;
+      throw new UserNotFoundError();
     }
-    return MikroORMUserMapper.toDomain(user);
+    return MikroORMUserMapper.toPublicDomain(user);
   }
 
-  async getByEmail(email: string): Promise<UserPublic | null> {
+  async getByEmail(email: string): Promise<UserPublic> {
     const user = await this.em.findOne(MikroORMUser, { email });
     if (!user) {
-      return null;
+      throw new UserNotFoundError();
     }
-    return MikroORMUserMapper.toDomain(user);
+    return MikroORMUserMapper.toPublicDomain(user);
   }
 
-  async getByEmailWithPassword(email: string): Promise<User | null> {
+  async getByEmailWithPassword(email: string): Promise<User> {
     const user = await this.em.findOne(MikroORMUser, { email });
     if (!user) {
-      return null;
+      throw new UserNotFoundError();
     }
     await user.password.load();
     return MikroORMUserMapper.toDomain(user);
