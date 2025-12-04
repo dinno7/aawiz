@@ -9,6 +9,7 @@ import {
 } from './commands';
 import {
   DeleteEvaluationUC,
+  ReadAllEvaluationUC,
   ReadOneEvaluationUC,
   UpdateEvaluationUC,
 } from './usecases';
@@ -21,6 +22,7 @@ export class EvaluationsService {
     private readonly usersService: UsersService,
     private readonly createEvaluationUC: CreateEvaluationUC,
     private readonly readOneEvaluationUC: ReadOneEvaluationUC,
+    private readonly readAllEvaluationUC: ReadAllEvaluationUC,
     private readonly updateEvaluationUC: UpdateEvaluationUC,
     private readonly deleteEvaluationUC: DeleteEvaluationUC,
   ) {}
@@ -36,6 +38,10 @@ export class EvaluationsService {
     }
 
     return this.createEvaluationUC.execute(input);
+  }
+
+  readAll(): Promise<Evaluation[]> {
+    return this.readAllEvaluationUC.execute();
   }
 
   readOne(input: ReadOneEvaluationCommand): Promise<Evaluation> {

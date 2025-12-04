@@ -63,6 +63,11 @@ export class EvaluationsController {
     return result;
   }
 
+  @Get()
+  async readAllEvaluation() {
+    return await this.evaluationsService.readAll();
+  }
+
   @Get(':id')
   async readEvaluation(@Param('id', ParseUUIDPipe) id: UUID) {
     return await this.evaluationsService.readOne(

@@ -5,6 +5,7 @@ import { CreateEvaluationUC } from './usecases/create-evaluation.uc';
 import { EvaluationsService } from './evaluations.service';
 import {
   DeleteEvaluationUC,
+  ReadAllEvaluationUC,
   ReadOneEvaluationUC,
   UpdateEvaluationUC,
 } from './usecases';
@@ -16,6 +17,7 @@ import { UsersModule } from 'src/modules/users/application/users.module';
   providers: [
     EvaluationsService,
     CreateEvaluationUC,
+    ReadAllEvaluationUC,
     ReadOneEvaluationUC,
     UpdateEvaluationUC,
     DeleteEvaluationUC,

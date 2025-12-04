@@ -41,6 +41,15 @@ export class MikroORMEvaluationRepository implements EvaluationRepository {
     return MikroOrmEvaluationMapper.toDomain(fetchedEval);
   }
 
+  async getAll(): Promise<Evaluation[]> {
+    const evaluations = await this.em.find(MikroORMEvaluation, {});
+    return Promise.all(
+      evaluations.map((evaluation) =>
+        MikroOrmEvaluationMapper.toDomain(evaluation),
+      ),
+    );
+  }
+
   async updateById(
     id: UUID,
     input: Partial<UpdateEvaluationInput>,
