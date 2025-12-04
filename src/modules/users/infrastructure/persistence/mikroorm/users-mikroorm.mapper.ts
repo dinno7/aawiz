@@ -1,6 +1,6 @@
 import { Mapper } from 'src/shared/interfaces';
 import { MikroORMUser } from './users-mikroorm.entity';
-import { User } from 'src/modules/users/domain';
+import { User, UserPublic } from 'src/modules/users/domain';
 import { ref } from '@mikro-orm/postgresql';
 
 class UserMapper implements Mapper<User, MikroORMUser> {
@@ -14,6 +14,19 @@ class UserMapper implements Mapper<User, MikroORMUser> {
     domainUser.updatedAt = entity.updatedAt;
     domainUser.createdAt = entity.createdAt;
     domainUser.password = entity.password.unwrap() || '';
+    return Promise.resolve(domainUser);
+  }
+
+  toPublicDomain(entity: MikroORMUser): Promise<UserPublic> {
+    const domainUser: UserPublic = {
+      id: entity.id,
+      name: entity.name,
+      email: entity.email,
+      roles: entity.roles,
+      passwordUpdatedAt: entity?.passwordUpdatedAt,
+      updatedAt: entity.updatedAt,
+      createdAt: entity.createdAt,
+    };
     return Promise.resolve(domainUser);
   }
 
