@@ -9,7 +9,7 @@ export class UserFactory {
     user.name = newUser.name;
     user.email = newUser.email;
     user.password = newUser.password;
-    user.roles = [UserRole.USER];
+    user.roles = [];
     user.createdAt = new Date();
     user.updatedAt = new Date();
     return user;

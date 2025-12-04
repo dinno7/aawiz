@@ -21,8 +21,8 @@ export class MikroORMUser {
   })
   email: string;
 
-  @Enum({ items: () => UserRole, array: true, default: [UserRole.USER] })
-  roles = [UserRole.USER];
+  @Enum({ items: () => UserRole, array: true, default: [] })
+  roles: UserRole[];
 
   @Property({
     hidden: true,
