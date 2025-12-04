@@ -96,7 +96,7 @@ cp .example.env .env
 3. Run with docker:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file ./.env up --build -d
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 
 ```
 
@@ -107,7 +107,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file ./.en
 3. Run with docker:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file ./.env up --build -d
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
 
 ```
 
@@ -213,4 +213,3 @@ The API uses URI versioning with the default version being `v1`:
 - Input validation using class-validator
 - CORS enabled by default
 - Cookie parser for secure cookie handling
-
