@@ -35,6 +35,7 @@ import { Policies, RolePolicy } from 'src/modules/auth/presenters/http';
 
 @ApiBearerAuth()
 @Controller('evaluations')
+@Policies([RolePolicy(UserRole.ADMIN)])
 export class EvaluationsController {
   constructor(private readonly evaluationsService: EvaluationsService) {}
 
@@ -63,7 +64,6 @@ export class EvaluationsController {
   }
 
   @Get(':id')
-  @Policies([RolePolicy(UserRole.ADMIN)])
   async readEvaluation(@Param('id', ParseUUIDPipe) id: UUID) {
     return await this.evaluationsService.readOne(
       new ReadOneEvaluationCommand(id),
