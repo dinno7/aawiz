@@ -91,6 +91,8 @@ cp .example.env .env
 # Modify the values in .env as needed
 ```
 
+## Deployment
+
 ### Production environment
 
 3. Run with docker:
