@@ -24,8 +24,12 @@ export class UsersService {
   }
 
   async isUserEmailExists(email: string): Promise<boolean> {
-    const user = await this.userRepository.getByEmail(email);
-    return !!user;
+    try {
+      const user = await this.userRepository.getByEmail(email);
+      return !!user;
+    } catch (_) {
+      return false;
+    }
   }
 
   async getUsers(): Promise<UserPublic[]> {
